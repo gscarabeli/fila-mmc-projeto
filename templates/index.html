@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Clínica de Vacinação</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Simulador de Clínica de Vacinação</h1>
+            <p class="subtitle">Análise de Filas e Estatísticas</p>
+        </header>
+
+        <div class="config-panel">
+            <h2>Configurações da Simulação</h2>
+            <button id="btnSimular" class="btn-primary">Executar Nova Simulação</button>
+            <div id="loading" class="loading-container" style="display: none;">
+                <p class="loading-text">Executando simulação...</p>
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <div class="card metrics-card">
+                <h2>Métricas do Sistema</h2>
+                <div id="metricas" class="metrics-content"></div>
+            </div>
+
+            <div class="card stats-card">
+                <h2>Estatísticas Descritivas</h2>
+                <div id="estatisticas" class="stats-content"></div>
+            </div>
+
+            <div class="card confidence-card">
+                <h2>Intervalos de Confiança</h2>
+                <div id="intervalos" class="confidence-content"></div>
+            </div>
+        </div>
+
+        <div class="graphics-container">
+            <h2>Visualizações Gráficas</h2>
+            <div class="graphics-grid" style="display: none;" id="graphics-grid">
+                <div class="graphic-card">
+                    <img id="graficos-simulacao" src="" alt="Gráficos da Simulação" class="graph-image">
+                </div>
+                <div class="graphic-card">
+                    <img id="graficos-estatisticos" src="" alt="Gráficos Estatísticos" class="graph-image">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

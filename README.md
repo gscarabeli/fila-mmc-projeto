@@ -32,6 +32,26 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
 3. Para rodar o sistema:
 4. Acesse a interface local pelo navegador: http://localhost:5000
 
+
+## 🖼️ Print do Kanban no Trello
+
+### 🎨 Legenda das Labels
+
+| Cor         | Label             | Significado                       |
+|-------------|-------------------|-----------------------------------|
+| Vermelho    | Prioridade Alta   | Tarefas críticas e prioritárias   |
+| Amarelo     | Prioridade Média  | Importantes, mas não urgentes     |
+| Verde       | Prioridade Baixa  | Tarefas que podem esperar         |
+| Roxo        | Sprint 1          | Atividades da primeira sprint     |
+| Rosa        | Sprint 2          | Atividades da segunda sprint      |
+| Azul Suave  | Sprint 3          | Atividades da terceira sprint     |
+
+Abaixo, a visualização do quadro com as tarefas divididas por status:
+
+![Quadro Kanban do Trello](assets/prints/kanban_trello.png)
+
+
+
 ## 📁 Estrutura do Projeto
 
 Simulador Fila MMc/

@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const btnSimular = document.getElementById('btnSimular');
+    const btnDownload = document.getElementById('btnDownload');
     const loading = document.getElementById('loading');
     const graphicsGrid = document.getElementById('graphics-grid');
+    
+    let currentCsvFilename = null;
     
     btnSimular.addEventListener('click', async function() {
         try {
@@ -9,7 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
             graphicsGrid.style.display = 'none';
             loading.style.display = 'block';
             btnSimular.disabled = true;
-            btnSimular.style.opacity = '0.7';            const numServidores = document.getElementById('numServidores').value;
+            btnSimular.style.opacity = '0.7';
+            btnDownload.style.display = 'none';
+            
+            const numServidores = document.getElementById('numServidores').value;
             const nivelConfianca = document.getElementById('nivelConfianca').value;
             const response = await fetch('/simular', {
                 method: 'POST',
@@ -33,7 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Atualizar intervalos de confiança
             const intervalosDiv = document.getElementById('intervalos');
-            intervalosDiv.innerHTML = formatarIntervalos(data.intervalos_confianca);            // Atualizar imagens com um pequeno delay para garantir geração
+            intervalosDiv.innerHTML = formatarIntervalos(data.intervalos_confianca);
+            
+            // Salvar nome do arquivo CSV e mostrar botão de download
+            currentCsvFilename = data.csv_filename;
+            btnDownload.style.display = 'inline-block';
+            
+            // Atualizar imagens com um pequeno delay para garantir geração
             setTimeout(() => {
                 const timestamp = new Date().getTime();
                 document.getElementById('graficos-simulacao').src = '/assets/graficos_simulacao.png?' + timestamp;
@@ -44,12 +56,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 graphicsGrid.style.display = 'grid';
             }, 500);
             
-        } catch (error) {            alert('Erro ao executar simulação. Por favor, tente novamente.');
+        } catch (error) {
+            alert('Erro ao executar simulação. Por favor, tente novamente.');
         } finally {
             // Esconder loading e reabilitar botão
             loading.style.display = 'none';
             btnSimular.disabled = false;
             btnSimular.style.opacity = '1';
+        }
+    });
+    
+    btnDownload.addEventListener('click', function() {
+        if (currentCsvFilename) {
+            window.location.href = `/download/${currentCsvFilename}`;
         }
     });
 });

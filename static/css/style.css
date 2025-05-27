@@ -125,6 +125,28 @@ body {
     background-color: #2980b9;
 }
 
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #c0392b;
+}
+
 .results-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

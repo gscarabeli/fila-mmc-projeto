@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 def generate_results_csv(metricas, estatisticas, intervalos_confianca):
-    # Rename metrics with better labels
+    # Definição dos rótulos das métricas em português
     metricas_labels = {
         'P0': 'Probabilidade Sistema Vazio (P0)',
         'P_espera': 'Probabilidade de Espera',
@@ -20,7 +20,7 @@ def generate_results_csv(metricas, estatisticas, intervalos_confianca):
     }
     metricas_dict = {metricas_labels.get(k, k): [v] for k, v in metricas.items()}
     
-    # Flatten the nested dictionaries for statistics with better labels
+    # Preparação das estatísticas descritivas
     estatisticas_dict = {}
     medidas_labels = {
         'Média': 'Média',
@@ -30,48 +30,45 @@ def generate_results_csv(metricas, estatisticas, intervalos_confianca):
         'Desvio Padrão': 'Desvio Padrão'
     }
     for tipo, valores in estatisticas.items():
-        tipo_clean = tipo.replace(':', '')  # Remove colon
+        tipo_clean = tipo.replace(':', '')
         for metrica, valor in valores.items():
             col_name = f"{tipo_clean} - {medidas_labels.get(metrica, metrica)}"
             estatisticas_dict[col_name] = [valor]
     
-    # Flatten the confidence intervals with better labels
+    # Preparação dos intervalos de confiança
     intervalos_dict = {}
     for tipo, valores in intervalos_confianca.items():
-        tipo_clean = tipo.replace(':', '')  # Remove colon
+        tipo_clean = tipo.replace(':', '')
         for limite, valor in valores.items():
             label = 'Limite Inferior' if limite == 'inferior' else 'Limite Superior'
             col_name = f"{tipo_clean} - {label}"
             intervalos_dict[col_name] = [valor]
     
-    # Combine all dictionaries
+    # Combina todos os dados e gera o CSV
     all_data = {**metricas_dict, **estatisticas_dict, **intervalos_dict}
-    
-    # Create DataFrame and save to CSV
     df = pd.DataFrame(all_data)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"resultados_{timestamp}.csv"
     filepath = os.path.join("assets", filename)
-    df.to_csv(filepath, index=False, encoding='utf-8-sig')  # Using UTF-8 with BOM for Excel compatibility
+    df.to_csv(filepath, index=False, encoding='utf-8-sig')
     return filename
 
 def main(num_servidores=3, nivel_confianca=0.95):
-    # Configurações da simulação
     ARQUIVO_DADOS = 'assets/dados_atendimento.csv'
     
-    # Executar simulação
+    # Executa simulação e análise do sistema de filas
     simulador = SimuladorFilas(num_servidores, ARQUIVO_DADOS)
     simulador.simular()
     metricas = simulador.calcular_metricas()
     simulador.gerar_graficos()
     
-    # Executar análise estatística
+    # Realiza análise estatística dos dados
     analisador = AnalisadorEstatistico(ARQUIVO_DADOS)
     estatisticas = analisador.calcular_estatisticas_descritivas()
     analisador.gerar_visualizacoes()
     intervalos_confianca = analisador.calcular_intervalos_confianca(nivel_confianca)
     
-    # Generate CSV with results
+    # Gera arquivo CSV com resultados
     csv_filename = generate_results_csv(metricas, estatisticas, intervalos_confianca)
     
     return metricas, estatisticas, intervalos_confianca, csv_filename

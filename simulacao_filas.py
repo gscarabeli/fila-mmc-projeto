@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Set the backend before importing pyplot
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,14 +29,26 @@ class SimuladorFilas:
             if tempo_ocupado <= 0:
                 return i
         return None
-    
     def simular(self):
         tempo_atual = 0
+        tempo_eventos = []  # Lista para controlar eventos de saída
+        
         for _, cliente in self.dados.iterrows():
             # Atualizar tempo
             tempo_atual += cliente['tempo_entre_chegadas']
             
-            # Verificar servidores disponíveis
+            # Processar saídas antes da nova chegada
+            for i, tempo_saida in enumerate(self.servidores):
+                if tempo_saida > 0 and tempo_saida <= tempo_atual:
+                    self.servidores[i] = 0
+                    # Se há alguém na fila, atender próximo cliente
+                    if self.fila:
+                        cliente_fila = self.fila.popleft()
+                        tempo_espera = tempo_atual - cliente_fila['chegada']
+                        self.historico_espera.append(tempo_espera)
+                        self.servidores[i] = tempo_atual + cliente_fila['tempo_atendimento']
+            
+            # Verificar servidores disponíveis para novo cliente
             servidor_livre = self._encontrar_servidor_livre()
             
             if servidor_livre is not None:
@@ -46,6 +60,7 @@ class SimuladorFilas:
                     'tempo_atendimento': cliente['tempo_atendimento']
                 })
             
+            # Registrar estado do sistema
             self.historico_fila.append(len(self.fila))
             self.historico_ocupacao.append(sum([1 for s in self.servidores if s > tempo_atual]))
     
@@ -106,37 +121,50 @@ class SimuladorFilas:
             'W': w,
             'Utilização': rho
         }
-    
     def gerar_graficos(self):
-        #TODO: Revizar os gráficos
         # Configurar estilo dark mode
         plt.style.use('dark_background')
         plt.figure(figsize=(20, 8))
         
         # Gráfico de tempo de espera
         plt.subplot(131)
-        plt.plot(self.historico_espera, color='#2ecc71')  # Verde claro
-        plt.title('Tempo de Espera por Cliente:', fontsize=14, color='white')
+        plt.plot(self.historico_espera, color='#2ecc71', label='Tempo de Espera')  # Verde claro
+        media_espera = np.mean(self.historico_espera)
+        plt.axhline(y=media_espera, color='white', linestyle='--', alpha=0.5, 
+                   label=f'Média: {media_espera:.1f} min')
+        plt.title('Tempo de Espera por Cliente', fontsize=14, color='white')
         plt.xlabel('Cliente', fontsize=12, color='white')
         plt.ylabel('Tempo (min)', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
+        plt.legend()
+        plt.ylim(bottom=0)  # Garantir que o gráfico comece do zero
         
         # Gráfico de tamanho da fila
         plt.subplot(132)
-        plt.plot(self.historico_fila, color='#3498db')  # Azul claro
+        plt.plot(self.historico_fila, color='#3498db', label='Tamanho da Fila')  # Azul claro
+        media_fila = np.mean(self.historico_fila)
+        plt.axhline(y=media_fila, color='white', linestyle='--', alpha=0.5,
+                   label=f'Média: {media_fila:.1f} pessoas')
         plt.title('Tamanho da Fila ao Longo do Tempo', fontsize=14, color='white')
         plt.xlabel('Tempo', fontsize=12, color='white')
         plt.ylabel('Número de Pessoas', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
+        plt.legend()
+        plt.ylim(bottom=0)
         
         # Gráfico de ocupação dos servidores
         plt.subplot(133)
-        plt.plot(self.historico_ocupacao, color='#e74c3c')  # Vermelho claro
+        plt.plot(self.historico_ocupacao, color='#e74c3c', label='Servidores Ocupados')  # Vermelho claro
+        media_ocupacao = np.mean(self.historico_ocupacao)
+        plt.axhline(y=media_ocupacao, color='white', linestyle='--', alpha=0.5,
+                   label=f'Média: {media_ocupacao:.1f} servidores')
         plt.title('Ocupação dos Servidores', fontsize=14, color='white')
         plt.xlabel('Tempo', fontsize=12, color='white')
         plt.ylabel('Servidores Ocupados', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
+        plt.legend()
+        plt.ylim(0, self.num_servidores)  # Limitar ao número máximo de servidores
         
         plt.tight_layout(pad=3.0)
-        plt.savefig('assets/graficos_simulacao.png', dpi=300, facecolor='#1a1a1a')
-        plt.close()
+        plt.savefig('assets/graficos_simulacao.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.close('all')

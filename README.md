@@ -19,18 +19,23 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
   - pandas
   - matplotlib
   - numpy
-  - seaborn
   - scipy
   - flask
 
 ### Passos:
 1. Clone o repositório ou extraia os arquivos.
-2. Instale as dependências (caso tenha `requirements.txt`):
-   ```bash
-   pip install -r requirements.txt
-  (ou instale manualmente os pacotes utilizados)
+2. Instale as dependências executando:
+   ```powershell
+   pip install pandas matplotlib numpy scipy flask
+   ```
 3. Para rodar o sistema:
+   ```powershell
+   python main.py
+   ```
 4. Acesse a interface local pelo navegador: http://localhost:5000
+5. Configure os parâmetros da simulação:
+   - Número de Servidores: define quantos atendentes estão disponíveis
+   - Nível de Confiança: escolha entre 90%, 95% ou 99% para os intervalos de confiança
 
 
 ## 🖼️ Print do Kanban no Trello
@@ -54,14 +59,23 @@ Abaixo, a visualização do quadro com as tarefas divididas por status:
 
 ## 📁 Estrutura do Projeto
 
-Simulador Fila MMc/
-│
-├── main.py                    # Script principal para iniciar a aplicação
-├── simulacao_filas.py         # Lógica de simulação M/M/c
-├── analise_estatistica.py     # Cálculos e gráficos estatísticos
-├── templates/                 # Templates HTML da interface
-├── static/                    # Arquivos CSS e imagens
-└── assets/                    # Arquivos auxiliares e dados
+```
+📦 Simulador Fila MMc
+├── 📜 main.py                    # Script principal e rotas Flask
+├── 📜 simulacao_filas.py         # Lógica de simulação M/M/c
+├── 📜 analise_estatistica.py     # Cálculos e análises estatísticas
+├── 📂 templates/                 # Templates HTML
+│   └── 📜 index.html            # Interface principal
+├── 📂 static/                    # Arquivos estáticos
+│   ├── 📜 favicon.ico           # Ícone da aplicação
+│   ├── 📂 css/                  # Estilos
+│   │   └── 📜 style.css        # CSS principal
+│   └── 📂 js/                   # JavaScript
+│       └── 📜 main.js          # Lógica do frontend
+└── 📂 assets/                    # Recursos
+    ├── 📜 dados_atendimento.csv # Dados de simulação
+    ├── 📊 graficos_*.png        # Gráficos gerados
+    └── 📂 prints/               # Imagens do projeto
 
 
 ## 👥 Equipe
@@ -102,11 +116,43 @@ Simulador Fila MMc/
 - Cálculo de medidas descritivas:
   - Média, mediana, moda, variância, desvio padrão
 - Visualização dos dados:
-  - Histogramas dos tempos de atendimento e espera
-  - Boxplot comparando tempos de atendimento vs espera
+  - Histogramas lado a lado para tempos de atendimento e chegadas
+  - Boxplot comparativo em visualização separada
 - Inferência estatística:
-  - Intervalos de confiança para as médias dos tempos
-- Interpretação dos dados e recomendações baseadas nas análises
+  - Intervalos de confiança (90%, 95%, 99%) para as médias dos tempos
+- Formatação numérica adaptada ao padrão brasileiro (vírgula como separador decimal)
+
+
+## 🌟 Features Atuais
+
+### 📊 Análise Estatística
+- Cálculo de medidas descritivas:
+  - Média, mediana, moda, variância, desvio padrão
+- Visualização dos dados:
+  - Histogramas lado a lado para tempos de atendimento e chegadas
+  - Boxplot comparativo em visualização separada
+- Inferência estatística:
+  - Intervalos de confiança (90%, 95%, 99%) para as médias dos tempos
+- Formatação numérica adaptada ao padrão brasileiro (vírgula como separador decimal)
+
+### 🔄 Simulação
+- Simulação do sistema de filas M/M/c com múltiplos servidores
+- Cálculo das métricas de desempenho do sistema:
+  - P₀: Probabilidade do sistema vazio
+  - P<sub>espera</sub>: Probabilidade de espera
+  - L<sub>q</sub>, W<sub>q</sub>, L, W
+- Geração de gráficos para:
+  - Tempo de espera por cliente
+  - Tamanho da fila ao longo do tempo
+  - Ocupação dos servidores
+- Análise de cenários: adicionar servidor ou aumentar μ
+
+### 💻 Interface e Usabilidade
+- Interface web responsiva com tema dark mode
+- Seleção dinâmica do nível de confiança (90%, 95%, 99%)
+- Configuração flexível do número de servidores
+- Visualizações otimizadas com layout aprimorado
+- Indicador de carregamento durante processamento
 
 
 ## 📌 Observações

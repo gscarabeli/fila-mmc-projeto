@@ -1,16 +1,15 @@
 from simulacao_filas import SimuladorFilas
 from analise_estatistica import AnalisadorEstatistico
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify, send_from_directory, request
 
 app = Flask(__name__)
 
-def main():
+def main(num_servidores=3, nivel_confianca=0.95):
     # Configurações da simulação
-    NUM_SERVIDORES = 3 #TODO: colocar como input do usuário
     ARQUIVO_DADOS = 'assets/dados_atendimento.csv'
     
     # Executar simulação
-    simulador = SimuladorFilas(NUM_SERVIDORES, ARQUIVO_DADOS)
+    simulador = SimuladorFilas(num_servidores, ARQUIVO_DADOS)
     simulador.simular()
     metricas = simulador.calcular_metricas()
     simulador.gerar_graficos()
@@ -19,7 +18,7 @@ def main():
     analisador = AnalisadorEstatistico(ARQUIVO_DADOS)
     estatisticas = analisador.calcular_estatisticas_descritivas()
     analisador.gerar_visualizacoes()
-    intervalos_confianca = analisador.calcular_intervalos_confianca()
+    intervalos_confianca = analisador.calcular_intervalos_confianca(nivel_confianca)
     
     return metricas, estatisticas, intervalos_confianca
 
@@ -27,9 +26,11 @@ def main():
 def index():
     return render_template('index.html')
 
-@app.route('/simular')
+@app.route('/simular', methods=['POST'])
 def simular():
-    metricas, estatisticas, intervalos_confianca = main()
+    num_servidores = request.json.get('numServidores', 3)
+    nivel_confianca = request.json.get('nivelConfianca', 0.95)
+    metricas, estatisticas, intervalos_confianca = main(num_servidores, nivel_confianca)
     return jsonify({
         'metricas': metricas,
         'estatisticas': estatisticas,

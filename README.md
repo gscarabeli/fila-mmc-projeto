@@ -76,16 +76,16 @@ Abaixo, a visualização do quadro com as tarefas divididas por status:
     ├── 📜 dados_atendimento.csv # Dados de simulação
     ├── 📊 graficos_*.png        # Gráficos gerados
     └── 📂 prints/               # Imagens do projeto
-
+```
 
 ## 👥 Equipe
 
-| Nome Completo                    | Papel / Responsabilidades                        |
-|----------------------------------|--------------------------------------------------|
-| Artur Rossi Junior               | Simulação, integração Flask, interface           |
-| Gustavo Correa Pedro de Carvalho | Cálculos estatísticos e métricas                 |
-| Gustavo Correia Scarabeli        | Gráficos, visualizações, documentação            |
-| Matheus Andrade de Oliveira      | Organização do projeto, relatórios finais        |
+| Nome Completo                    | Papel / Responsabilidades                            |
+|----------------------------------|------------------------------------------------------|
+| Artur Rossi Junior               | Documentação e simulação                             |
+| Gustavo Correa Pedro de Carvalho | Cálculos estatísticos e métricas                     |
+| Gustavo Correia Scarabeli        | Integração Flask, interface, gráficos e visualizações|
+| Matheus Andrade de Oliveira      | Organização do projeto e relatórios finais           |
 
 
 ## 📊 Tarefas por disciplina

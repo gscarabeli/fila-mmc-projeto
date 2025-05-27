@@ -28,6 +28,7 @@ class AnalisadorEstatistico:
         }
         
         for coluna, nome in nomes.items():
+            #TODO: Corrigir Moda
             dados = self.dados[coluna]
             estatisticas[nome] = {
                 metricas['media']: dados.mean(),
@@ -40,6 +41,7 @@ class AnalisadorEstatistico:
         return estatisticas
     
     def gerar_visualizacoes(self):
+        #TODO: Aumentar de 1 pra cima
         # Configurar estilo dark mode
         plt.style.use('dark_background')
         plt.figure(figsize=(20, 8))

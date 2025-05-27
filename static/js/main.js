@@ -47,19 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function formatarMetricas(metricas) {
-    return Object.entries(metricas)
-        .map(([chave, valor]) => `<p><strong>${chave}:</strong> ${valor.toFixed(2)}</p>`)
+    const ordem = ['P0', 'P_espera', 'Lq', 'Wq', 'W', 'L'];
+    return ordem
+        .map(chave => `<p><strong>${chave}:</strong> ${metricas[chave].toFixed(2)}</p>`)
         .join('');
 }
 
 function formatarEstatisticas(estatisticas) {
-    return Object.entries(estatisticas)
-        .map(([tipo, dados]) => `
-            <h4>${tipo}</h4>
-            ${Object.entries(dados)
-                .map(([chave, valor]) => `<p><strong>${chave}:</strong> ${valor.toFixed(2)}</p>`)
-                .join('')}
-        `).join('');
+    const ordem = ['Média', 'Mediana', 'Moda', 'Variância', 'Desvio Padrão'];
+    let html = '';
+    
+    for (const [titulo, valores] of Object.entries(estatisticas)) {
+        html += `<h3>${titulo}</h3>`;
+        html += '<div class="stats-values">';
+        html += ordem
+            .map(metrica => `<p class="stat-item"><strong>${metrica}:</strong> <span class="value">${valores[metrica].toFixed(2)}</span></p>`)
+            .join('');
+        html += '</div>';
+    }
+    
+    return html;
 }
 
 function formatarIntervalos(intervalos) {

@@ -57,7 +57,7 @@ class SimuladorFilas:
         c = self.num_servidores
         
         # Primeira parte da soma
-        soma = sum([(c * rho)**n / math.factorial(n) for n in range(c)])
+        soma = sum([(c * rho)**n / math.factorial(n) for n in range(c-1)])
         
         # Segunda parte
         ultima_parte = (c * rho)**c / (math.factorial(c) * (1 - rho))
@@ -73,7 +73,7 @@ class SimuladorFilas:
         c = self.num_servidores
         p0 = self._calcular_p0(lambda_taxa, mu_taxa)
         
-        return (lambda_taxa**c * p0) / (math.factorial(c-1) * mu_taxa**c * (1 - rho))
+        return (lambda_taxa**c * p0) / (math.factorial(c) * mu_taxa**c * (1 - rho))
     
     def _calcular_lq(self, lambda_taxa, mu_taxa):
         """
@@ -94,7 +94,7 @@ class SimuladorFilas:
         p_espera = self._calcular_p_espera(lambda_taxa, mu_taxa)
         lq = self._calcular_lq(lambda_taxa, mu_taxa)
         wq = lq / lambda_taxa
-        l = lq + (lambda_taxa / mu_taxa)
+        l = lq + (lambda_taxa / mu_taxa) 
         w = wq + (1 / mu_taxa)
         
         return {
@@ -108,6 +108,7 @@ class SimuladorFilas:
         }
     
     def gerar_graficos(self):
+        #TODO: Revizar os gráficos
         # Configurar estilo dark mode
         plt.style.use('dark_background')
         plt.figure(figsize=(20, 8))

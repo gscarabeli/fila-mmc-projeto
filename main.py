@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 def main():
     # Configurações da simulação
-    NUM_SERVIDORES = 3
+    NUM_SERVIDORES = 3 #TODO: colocar como input do usuário
     ARQUIVO_DADOS = 'assets/dados_atendimento.csv'
     
     # Executar simulação

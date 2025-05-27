@@ -124,47 +124,115 @@ class SimuladorFilas:
     def gerar_graficos(self):
         # Configurar estilo dark mode
         plt.style.use('dark_background')
-        plt.figure(figsize=(20, 8))
         
-        # Gráfico de tempo de espera
+        # Calcular dados necessários para os gráficos
+        n = len(self.dados)
+        tempos_chegada = np.zeros(n)
+        tempo_atual = 0
+        for i, cliente in enumerate(self.dados.itertuples()):
+            tempo_atual += cliente.tempo_entre_chegadas
+            tempos_chegada[i] = tempo_atual
+
+        # Inicialização para simulação
+        inicio_atendimento = np.zeros(n)
+        fim_atendimento = np.zeros(n)
+        fim_servidores = [0.0] * self.num_servidores
+        tempo_espera = np.zeros(n)
+        ocupacoes = {i: [] for i in range(self.num_servidores)}
+
+        # Simulação do atendimento
+        for i in range(n):
+            chegada = tempos_chegada[i]
+            duracao = self.dados.iloc[i]['tempo_atendimento']
+
+            # Encontrar servidor mais livre
+            servidor = min(range(self.num_servidores), key=lambda x: fim_servidores[x])
+            inicio = max(chegada, fim_servidores[servidor])
+            fim = inicio + duracao
+            
+            # Registrar dados
+            inicio_atendimento[i] = inicio
+            fim_atendimento[i] = fim
+            tempo_espera[i] = inicio - chegada
+            ocupacoes[servidor].append((inicio, duracao, i+1))
+            fim_servidores[servidor] = fim
+
+        # Configurar subplots
+        plt.figure(figsize=(20, 8))
+
+        # 1. Gráfico de tempo de espera por cliente
         plt.subplot(131)
-        plt.plot(self.historico_espera, color='#2ecc71', label='Tempo de Espera')  # Verde claro
-        media_espera = np.mean(self.historico_espera)
-        plt.axhline(y=media_espera, color='white', linestyle='--', alpha=0.5, 
+        plt.bar(range(1, n+1), tempo_espera, color='#2ecc71', edgecolor='white', alpha=0.7)
+        media_espera = np.mean(tempo_espera)
+        plt.axhline(y=media_espera, color='white', linestyle='--', alpha=0.5,
                    label=f'Média: {media_espera:.1f} min')
         plt.title('Tempo de Espera por Cliente', fontsize=14, color='white')
         plt.xlabel('Cliente', fontsize=12, color='white')
         plt.ylabel('Tempo (min)', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
         plt.legend()
-        plt.ylim(bottom=0)  # Garantir que o gráfico comece do zero
-        
-        # Gráfico de tamanho da fila
+        plt.ylim(bottom=0)        # 2. Gráfico de tamanho da fila ao longo do tempo
         plt.subplot(132)
-        plt.plot(self.historico_fila, color='#3498db', label='Tamanho da Fila')  # Azul claro
-        media_fila = np.mean(self.historico_fila)
+        
+        # Recalcular inicio_atendimento e fim_atendimento
+        inicio_atendimento = np.zeros(n)
+        fim_atendimento = np.zeros(n)
+        fim_servidores = [0.0] * self.num_servidores
+
+        # Simular atendimento com o número correto de servidores
+        for i in range(n):
+            chegada = tempos_chegada[i]
+            duracao = self.dados.iloc[i]['tempo_atendimento']
+            
+            # Encontrar servidor mais livre
+            servidor = min(range(self.num_servidores), key=lambda x: fim_servidores[x])
+            inicio = max(chegada, fim_servidores[servidor])
+            fim = inicio + duracao
+            
+            inicio_atendimento[i] = inicio
+            fim_atendimento[i] = fim
+            fim_servidores[servidor] = fim
+
+        # Criar linha do tempo para o gráfico
+        timeline = np.linspace(0, max(fim_atendimento) + 5, 2000)
+        fila_size = [np.sum((tempos_chegada <= t) & (inicio_atendimento > t)) for t in timeline]
+
+        plt.plot(timeline, fila_size, color='#3498db', label='Pessoas na fila')
+        media_fila = np.mean(fila_size)
         plt.axhline(y=media_fila, color='white', linestyle='--', alpha=0.5,
                    label=f'Média: {media_fila:.1f} pessoas')
-        plt.title('Tamanho da Fila ao Longo do Tempo', fontsize=14, color='white')
-        plt.xlabel('Tempo', fontsize=12, color='white')
-        plt.ylabel('Número de Pessoas', fontsize=12, color='white')
+        plt.title('Número de Pessoas na Fila ao Longo do Tempo', fontsize=14, color='white')
+        plt.xlabel('Tempo (minutos)', fontsize=12, color='white')
+        plt.ylabel('Número de Pessoas na Fila', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
         plt.legend()
         plt.ylim(bottom=0)
-        
-        # Gráfico de ocupação dos servidores
+
+        # 3. Gráfico de ocupação dos servidores (Gantt)
         plt.subplot(133)
-        plt.plot(self.historico_ocupacao, color='#e74c3c', label='Servidores Ocupados')  # Vermelho claro
-        media_ocupacao = np.mean(self.historico_ocupacao)
-        plt.axhline(y=media_ocupacao, color='white', linestyle='--', alpha=0.5,
-                   label=f'Média: {media_ocupacao:.1f} servidores')
+        colors = ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6', 
+                 '#1abc9c', '#e67e22', '#34495e', '#7f8c8d', '#c0392b']
+        ax = plt.gca()
+        for servidor, tarefas in ocupacoes.items():
+            for (inicio, duracao, label) in tarefas:
+                ax.broken_barh([(inicio, duracao)], 
+                             (servidor * 10, 9),
+                             facecolors=colors[servidor % len(colors)],
+                             edgecolor='white',
+                             alpha=0.7)
+                # Adicionar o número do cliente no centro da barra
+                ax.text(inicio + duracao/2, servidor * 10 + 4.5, label,
+                       ha='center', va='center', color='white',
+                       fontsize=8)
+
         plt.title('Ocupação dos Servidores', fontsize=14, color='white')
-        plt.xlabel('Tempo', fontsize=12, color='white')
-        plt.ylabel('Servidores Ocupados', fontsize=12, color='white')
+        plt.xlabel('Tempo (min)', fontsize=12, color='white')
+        plt.yticks([5 + 10*i for i in range(self.num_servidores)],
+                  [f'Servidor {i+1}' for i in range(self.num_servidores)])
         plt.grid(True, alpha=0.2)
-        plt.legend()
-        plt.ylim(0, self.num_servidores)  # Limitar ao número máximo de servidores
-        
+        plt.ylim(0, 10 * self.num_servidores + 5)
+
+        # Ajustar layout e salvar
         plt.tight_layout(pad=3.0)
         plt.savefig('assets/graficos_simulacao.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
         plt.close('all')

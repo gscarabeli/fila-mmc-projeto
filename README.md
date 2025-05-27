@@ -1,5 +1,13 @@
 # 🧮 Simulação de Filas M/M/c - Projeto Interdisciplinar
 
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+## 📊 Status do Projeto
+
+O projeto está atualmente em desenvolvimento ativo, com as funcionalidades principais implementadas e em fase de testes e melhorias.
+
 ## 🎯 Objetivo
 
 Desenvolver uma aplicação em Python para simular o comportamento de um sistema de filas com múltiplos servidores (modelo M/M/c), utilizando dados simulados e reais. O sistema foi projetado para analisar desempenho, prever gargalos e apoiar decisões operacionais em contextos como clínicas, restaurantes ou centrais de suporte.
@@ -16,11 +24,11 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
 ### Pré-requisitos:
 - Python 3.10+
 - Bibliotecas:
-  - pandas
-  - matplotlib
-  - numpy
-  - scipy
-  - flask
+  - pandas >= 2.0.0
+  - matplotlib >= 3.7.0
+  - numpy >= 1.24.0
+  - scipy >= 1.10.0
+  - flask >= 2.3.0
 
 ### Passos:
 1. Clone o repositório ou extraia os arquivos.
@@ -53,7 +61,7 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
 
 Abaixo, a visualização do quadro com as tarefas divididas por status:
 
-![Quadro Kanban do Trello](assets/prints/kanban_trello.png)
+![Quadro Kanban do Trello](assets/prints/kanban_trello2.png)
 
 
 
@@ -166,4 +174,25 @@ O código está modularizado, com separação entre simulação, análise estat�
 - Integração com dashboard via Streamlit
 - Análise de sensibilidade com diferentes parâmetros
 - Uso de dados reais de empresas parceiras
+
+## ⚠️ Limitações Conhecidas
+
+- A simulação atual está otimizada para até 10 servidores
+- Os intervalos de confiança são calculados assumindo normalidade dos dados
+- A interface web não possui suporte para dispositivos móveis muito pequenos
+- Os dados simulados são gerados com distribuição exponencial apenas
+
+## 🤝 Contribuição
+
+Para contribuir com o projeto:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/NovaFeature`)
+3. Faça commit das mudanças (`git commit -m 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/NovaFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 

@@ -34,16 +34,24 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
 1. Clone o repositório ou extraia os arquivos.
 2. Instale as dependências executando:
    ```powershell
-   pip install pandas matplotlib numpy scipy flask
+   pip install -r requirements.txt
    ```
 3. Para rodar o sistema:
    ```powershell
-   python main.py
+   python src/main.py
    ```
 4. Acesse a interface local pelo navegador: http://localhost:5000
 5. Configure os parâmetros da simulação:
    - Número de Servidores: define quantos atendentes estão disponíveis
    - Nível de Confiança: escolha entre 90%, 95% ou 99% para os intervalos de confiança
+
+### Estrutura de Desenvolvimento
+O projeto está organizado de forma modular para facilitar a manutenção e extensão:
+
+- `src/models/`: Contém a lógica central da simulação de filas
+- `src/services/`: Implementa os serviços de análise estatística
+- `static/` e `templates/`: Interface web da aplicação
+- `assets/`: Armazena recursos como dados de entrada e gráficos gerados
 
 
 ## 🖼️ Print do Kanban no Trello
@@ -69,21 +77,27 @@ Abaixo, a visualização do quadro com as tarefas divididas por status:
 
 ```
 📦 Simulador Fila MMc
-├── 📜 main.py                    # Script principal e rotas Flask
-├── 📜 simulacao_filas.py         # Lógica de simulação M/M/c
-├── 📜 analise_estatistica.py     # Cálculos e análises estatísticas
-├── 📂 templates/                 # Templates HTML
-│   └── 📜 index.html            # Interface principal
-├── 📂 static/                    # Arquivos estáticos
-│   ├── 📜 favicon.ico           # Ícone da aplicação
-│   ├── 📂 css/                  # Estilos
-│   │   └── 📜 style.css        # CSS principal
-│   └── 📂 js/                   # JavaScript
-│       └── 📜 main.js          # Lógica do frontend
-└── 📂 assets/                    # Recursos
-    ├── 📜 dados_atendimento.csv # Dados de simulação
-    ├── 📊 graficos_*.png        # Gráficos gerados
-    └── 📂 prints/               # Imagens do projeto
+├── 📂 src/                           # Código fonte do projeto
+│   ├── 📜 main.py                    # Ponto de entrada e rotas Flask
+│   ├── 📂 models/                    # Classes e modelos de dados
+│   │   └── 📜 simulacao_filas.py     # Lógica de simulação M/M/c
+│   └── 📂 services/                  # Serviços e lógica de negócio
+│       └── 📜 analise_estatistica.py # Cálculos e análises estatísticas
+├── 📂 templates/                     # Templates HTML
+│   └── 📜 index.html                 # Interface principal
+├── 📂 static/                        # Arquivos estáticos
+│   ├── 📜 favicon.ico                # Ícone da aplicação
+│   ├── 📂 css/                       # Estilos
+│   │   └── 📜 style.css              # CSS principal
+│   └── 📂 js/                        # JavaScript
+│       └── 📜 main.js                # Lógica do frontend
+├── 📂 assets/                        # Recursos
+│   ├── 📜 dados_atendimento.csv      # Dados de simulação
+│   ├── 📊 graficos_*.png             # Gráficos gerados
+│   └── 📂 prints/                    # Imagens do Kanban do projeto
+├── 📜 requirements.txt               # Dependências do projeto
+├── 📜 README.md                      # Esta documentação
+└── 📜 LICENSE                        # Licença MIT
 ```
 
 ## 👥 Equipe

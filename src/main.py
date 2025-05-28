@@ -1,13 +1,19 @@
-from simulacao_filas import SimuladorFilas
-from analise_estatistica import AnalisadorEstatistico
+from models.simulacao_filas import SimuladorFilas
+from services.analise_estatistica import AnalisadorEstatistico
 from flask import Flask, render_template, jsonify, send_from_directory, request, send_file
 import pandas as pd
 import os
 from datetime import datetime
 
-app = Flask(__name__)
+# Configura o Flask para encontrar os diretórios corretamente
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
 def generate_results_csv(metricas, estatisticas, intervalos_confianca):
+    # Configura o caminho para a pasta assets
+    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+    
     # Definição dos rótulos das métricas em português
     metricas_labels = {
         'P0': 'Probabilidade Sistema Vazio (P0)',
@@ -49,12 +55,13 @@ def generate_results_csv(metricas, estatisticas, intervalos_confianca):
     df = pd.DataFrame(all_data)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"resultados_{timestamp}.csv"
-    filepath = os.path.join("assets", filename)
+    filepath = os.path.join(assets_dir, filename)
     df.to_csv(filepath, index=False, encoding='utf-8-sig')
     return filename
 
 def main(num_servidores=3, nivel_confianca=0.95):
-    ARQUIVO_DADOS = 'assets/dados_atendimento.csv'
+    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+    ARQUIVO_DADOS = os.path.join(assets_dir, 'dados_atendimento.csv')
     
     # Executa simulação e análise do sistema de filas
     simulador = SimuladorFilas(num_servidores, ARQUIVO_DADOS)
@@ -91,14 +98,16 @@ def simular():
 
 @app.route('/download/<filename>')
 def download_file(filename):
-    return send_file(os.path.join('assets', filename),
+    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+    return send_file(os.path.join(assets_dir, filename),
                     mimetype='text/csv',
                     as_attachment=True,
                     download_name=filename)
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
-    return send_from_directory('assets', filename)
+    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+    return send_from_directory(assets_dir, filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

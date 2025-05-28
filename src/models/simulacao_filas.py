@@ -24,43 +24,51 @@ class SimuladorFilas:
             if tempo_ocupado <= 0:
                 return i
         return None
-
+        
     def simular(self):
-        tempo_atual = 0
-        self.historico_fila = []
+        # Calcular tempos reais de chegada
+        self.dados['tempo_chegada'] = self.dados['tempo_entre_chegadas'].cumsum()
+        
+        # Inicializar variáveis
+        self.servidores = [0] * self.num_servidores
         self.historico_espera = []
         self.historico_ocupacao = []
-        self.historico_tempos = []
-        self.fila = deque()
-        self.servidores = [0] * self.num_servidores
+        self.fila_tempo = []  # Lista para eventos da fila [(tempo, mudança)]
+        
+        for idx, cliente in self.dados.iterrows():
+            chegada = cliente['tempo_chegada']
+            atendimento = cliente['tempo_atendimento']
+            
+            # Adicionar evento de chegada na fila
+            self.fila_tempo.append((chegada, +1))
+            
+            # Encontrar servidor que ficará livre primeiro
+            servidor_idx = min(range(self.num_servidores), key=lambda x: self.servidores[x])
+            inicio_atendimento = max(chegada, self.servidores[servidor_idx])
+            fim_atendimento = inicio_atendimento + atendimento
+            
+            # Adicionar evento de saída da fila
+            self.fila_tempo.append((inicio_atendimento, -1))
+            
+            # Calcular tempo de espera
+            self.historico_espera.append(inicio_atendimento - chegada)
+            
+            # Atualizar tempo de liberação do servidor
+            self.servidores[servidor_idx] = fim_atendimento
+            
+            # Registrar ocupação
+            self.historico_ocupacao.append(sum([1 for s in self.servidores if s > chegada]))
 
-        for _, cliente in self.dados.iterrows():
-            tempo_atual += cliente['tempo_entre_chegadas']
-
-            for i, tempo_saida in enumerate(self.servidores):
-                if tempo_saida > 0 and tempo_saida <= tempo_atual:
-                    self.servidores[i] = 0
-                    if self.fila:
-                        cliente_fila = self.fila.popleft()
-                        self.servidores[i] = tempo_atual + cliente_fila['tempo_atendimento']
-
-            servidor_livre = self._encontrar_servidor_livre()
-
-            if servidor_livre is not None:
-                self.servidores[servidor_livre] = tempo_atual + cliente['tempo_atendimento']
-                self.historico_espera.append(0)
-            else:
-                self.fila.append({
-                    'chegada': tempo_atual,
-                    'tempo_atendimento': cliente['tempo_atendimento']
-                })
-                proximo_livre = min(self.servidores)
-                tempo_espera = proximo_livre - tempo_atual
-                self.historico_espera.append(tempo_espera)
-
-            self.historico_fila.append(len(self.fila))
-            self.historico_tempos.append(tempo_atual)
-            self.historico_ocupacao.append(sum([1 for s in self.servidores if s > tempo_atual]))
+        # Ordenar eventos da fila
+        self.fila_tempo.sort()
+        # Calcular tamanho da fila acumulado
+        tempos, eventos = zip(*self.fila_tempo)
+        self.historico_tempos = tempos
+        self.historico_fila = []
+        qtd = 0
+        for e in eventos:
+            qtd += e
+            self.historico_fila.append(qtd)
 
     def _calcular_p0(self, lambda_taxa, mu_taxa):
         rho = lambda_taxa / (self.num_servidores * mu_taxa)
@@ -101,38 +109,45 @@ class SimuladorFilas:
             'W': w,
             'Utilizacao': rho
         }
-
+    
     def gerar_graficos(self):
         if not self.historico_fila:
             self.simular()
 
         plt.style.use('dark_background')
         n = len(self.dados)
-        plt.figure(figsize=(20, 8))
 
-        plt.subplot(131)
-        plt.bar(range(1, n+1), self.historico_espera, color='#2ecc71', edgecolor='white', alpha=0.7)
+        # Primeiro gráfico - Tempo de espera
+        plt.figure(figsize=(12, 6))
+        plt.bar(range(1, n+1), self.historico_espera, color='skyblue')
         plt.title('Tempo de Espera por Cliente', fontsize=14, color='white')
         plt.xlabel('Cliente', fontsize=12, color='white')
         plt.ylabel('Tempo de Espera (minutos)', fontsize=12, color='white')
-        plt.grid(axis='y', alpha=0.2, linestyle='--')
+        plt.grid(True, alpha=0.2)
         plt.xticks(range(1, n+1))
         plt.ylim(bottom=0)
+        plt.tight_layout()
+        plt.savefig('assets/tempo_espera.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.close()
 
-        plt.subplot(132)
+        # Segundo gráfico - Número de pessoas na fila
+        plt.figure(figsize=(12, 6))
         plt.step(self.historico_tempos, self.historico_fila, where='post', 
-                color='blue', linewidth=2, label='Pessoas na fila')
-        plt.title('Numero de Pessoas na Fila ao Longo do Tempo (2 servidores)', 
+                color='orange', linewidth=2)
+        plt.title(f'Número de Pessoas na Fila ao Longo do Tempo ({self.num_servidores} servidores)', 
                  fontsize=14, color='white')
         plt.xlabel('Tempo (minutos)', fontsize=12, color='white')
-        plt.ylabel('Numero de Pessoas na Fila', fontsize=12, color='white')
+        plt.ylabel('Número de pessoas na fila', fontsize=12, color='white')
         plt.grid(True, alpha=0.2)
-        plt.legend(framealpha=0.8)
         plt.ylim(bottom=0)
         max_pessoas = max(self.historico_fila)
         plt.ylim(0, max_pessoas + 1)
+        plt.tight_layout()
+        plt.savefig('assets/tamanho_fila.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.close()
 
-        plt.subplot(133)
+        # Terceiro gráfico - Ocupação dos servidores
+        plt.figure(figsize=(12, 6))
         colors = ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6', 
                  '#1abc9c', '#e67e22', '#34495e', '#7f8c8d', '#c0392b']
         ax = plt.gca()
@@ -166,13 +181,12 @@ class SimuladorFilas:
                        ha='center', va='center', color='white',
                        fontsize=8)
 
-        plt.title('Ocupacao dos Servidores', fontsize=14, color='white')
+        plt.title('Ocupação dos Servidores', fontsize=14, color='white')
         plt.xlabel('Tempo (min)', fontsize=12, color='white')
         plt.yticks([5 + 10*i for i in range(self.num_servidores)],
                   [f'Servidor {i+1}' for i in range(self.num_servidores)])
         plt.grid(True, alpha=0.2)
         plt.ylim(0, 10 * self.num_servidores + 5)
-
-        plt.tight_layout(pad=3.0)
-        plt.savefig('assets/graficos_simulacao.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.tight_layout()
+        plt.savefig('assets/ocupacao_servidores.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
         plt.close('all')

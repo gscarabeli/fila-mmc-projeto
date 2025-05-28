@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Atualizar imagens com um pequeno delay para garantir geração
             setTimeout(() => {
                 const timestamp = new Date().getTime();
-                document.getElementById('graficos-simulacao').src = '/assets/graficos_simulacao.png?' + timestamp;
+                document.getElementById('tempo-espera').src = '/assets/tempo_espera.png?' + timestamp;
+                document.getElementById('tamanho-fila').src = '/assets/tamanho_fila.png?' + timestamp;
+                document.getElementById('ocupacao-servidores').src = '/assets/ocupacao_servidores.png?' + timestamp;
                 document.getElementById('histogramas-estatisticos').src = '/assets/histogramas_estatisticos.png?' + timestamp;
                 document.getElementById('boxplot-estatistico').src = '/assets/boxplot_estatistico.png?' + timestamp;
                 

@@ -3,15 +3,19 @@
 <head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Clínica de Vacinação</title>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">        <header class="header">
+<body>    <div class="container">
+        <header class="header">
+            <i class="fas fa-syringe header-icon"></i>
             <h1>Simulador de Clínica de Vacinação</h1>
-            <p class="subtitle">Análise de Filas e Estatísticas</p>
-            <p class="info-text" style="font-size: 0.9em; color: #888;">Fila do tipo FIFO (First In, First Out) - O primeiro a chegar é o primeiro a ser atendido</p>
+            <p class="subtitle"><i class="fas fa-chart-line"></i> Análise de Filas e Estatísticas</p>
+            <p class="info-text">
+                <i class="fas fa-people-arrows"></i> 
+                Fila do tipo FIFO (First In, First Out) - O primeiro a chegar é o primeiro a ser atendido
+            </p>
         </header><div class="config-panel">
             <h2>Configurações da Simulação</h2>            <div class="config-input">
                 <div class="input-group">
@@ -23,10 +27,13 @@
                         <option value="0.95" selected>95%</option>
                         <option value="0.99">99%</option>
                     </select>
-                </div>
-                <div class="button-group">
-                    <button id="btnSimular" class="btn-primary">Executar Nova Simulação</button>
-                    <button id="btnDownload" class="btn-secondary" style="display: none;">Baixar Resultados (CSV)</button>
+                </div>                <div class="button-group">
+                    <button id="btnSimular" class="btn-primary">
+                        <i class="fas fa-play-circle"></i> Executar Nova Simulação
+                    </button>
+                    <button id="btnDownload" class="btn-secondary" style="display: none;">
+                        <i class="fas fa-download"></i> Baixar Resultados (CSV)
+                    </button>
                 </div>
             </div>
             <div id="loading" class="loading-container" style="display: none;">
@@ -35,37 +42,36 @@
             </div>
         </div>
 
-        <div class="results-container">
-            <div class="card metrics-card">
-                <h2>Métricas do Sistema</h2>
+        <div class="results-container">            <div class="card metrics-card">
+                <h2><i class="fas fa-chart-pie"></i> Métricas do Sistema</h2>
                 <div id="metricas" class="metrics-content"></div>
             </div>
 
             <div class="card stats-card">
-                <h2>Estatísticas Descritivas</h2>
+                <h2><i class="fas fa-calculator"></i> Estatísticas Descritivas</h2>
                 <div id="estatisticas" class="stats-content"></div>
             </div>
 
             <div class="card confidence-card">
-                <h2>Intervalos de Confiança</h2>
+                <h2><i class="fas fa-percentage"></i> Intervalos de Confiança</h2>
                 <div id="intervalos" class="confidence-content"></div>
             </div>
-        </div>
-
-        <div class="graphics-container">
-            <h2>Visualizações Gráficas</h2>            <div class="graphics-grid" style="display: none;" id="graphics-grid">                <div class="graphic-section">
-                    <h2>Gráficos da Simulação</h2>
+        </div>        <div class="graphics-container">
+            <h2><i class="fas fa-chart-bar"></i> Visualizações Gráficas</h2>
+            <div class="graphics-grid" style="display: none;" id="graphics-grid">
+                <div class="graphic-section">
+                    <h2><i class="fas fa-hospital-user"></i> Gráficos da Simulação</h2>
                     <div class="graphic-card">
-                        <h3>Tempo de Espera por Cliente</h3>
-                        <img id="tempo-espera" src="" alt="Tempo de Espera por Cliente" class="graph-image">
+                        <h3><i class="fas fa-clock"></i> Tempo de Espera por Paciente</h3>
+                        <img id="tempo-espera" src="" alt="Tempo de Espera por Paciente" class="graph-image">
                     </div>
                     <div class="graphic-card">
-                        <h3>Tamanho da Fila ao Longo do Tempo</h3>
+                        <h3><i class="fas fa-users"></i> Tamanho da Fila ao Longo do Tempo</h3>
                         <img id="tamanho-fila" src="" alt="Tamanho da Fila" class="graph-image">
                     </div>
                     <div class="graphic-card">
-                        <h3>Ocupação dos Servidores</h3>
-                        <img id="ocupacao-servidores" src="" alt="Ocupação dos Servidores" class="graph-image">
+                        <h3><i class="fas fa-user-md"></i> Ocupação dos Postos de Vacinação</h3>
+                        <img id="ocupacao-servidores" src="" alt="Ocupação dos Postos de Vacinação" class="graph-image">
                     </div>
                 </div>
 

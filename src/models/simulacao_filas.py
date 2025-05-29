@@ -126,46 +126,73 @@ class SimuladorFilas:
         if not hasattr(self, 'timeline'):
             self.simular()
 
-        plt.style.use('dark_background')
+        # Configuração do estilo dos gráficos
+        plt.style.use('default')
+        # Configurações gerais do matplotlib
+        plt.rcParams.update({
+            'figure.facecolor': 'white',
+            'axes.facecolor': 'white',
+            'axes.grid': True,
+            'grid.alpha': 0.3,
+            'axes.labelsize': 12,
+            'axes.titlesize': 14,
+            'xtick.labelsize': 10,
+            'ytick.labelsize': 10,
+            'lines.linewidth': 2.5,
+            'font.family': 'sans-serif',
+        })
         n = len(self.dados)
+
+        # Cores do tema
+        cor_primaria = '#00A1E0'    # Azul médico
+        cor_secundaria = '#4CAF50'   # Verde saúde
+        cor_destaque = '#FF6B6B'     # Vermelho suave
+        cor_fundo = '#FFFFFF'        # Branco
+        cor_texto = '#2C3E50'        # Azul escuro
 
         # Primeiro gráfico - Tempo de espera por cliente
         tempos_espera_ordenados = sorted(self.historico_espera)
-        plt.figure(figsize=(12, 6))
-        plt.bar(range(1, n+1), tempos_espera_ordenados, color='orange', edgecolor='black')
-        plt.title("Tempo de Espera por Cliente")
-        plt.xlabel("Cliente")
-        plt.ylabel("Tempo de Espera (minutos)")
-        plt.xticks(range(1, n+1))
-        plt.grid(axis='y', linestyle='--', alpha=0.6)
+        plt.figure(figsize=(12, 6), facecolor=cor_fundo)
+        ax = plt.gca()
+        ax.set_facecolor(cor_fundo)
+        plt.bar(range(1, n+1), tempos_espera_ordenados, color=cor_primaria, alpha=0.7)
+        plt.title("Tempo de Espera por Paciente", color=cor_texto, fontsize=14, pad=20)
+        plt.xlabel("Paciente", color=cor_texto, fontsize=12)
+        plt.ylabel("Tempo de Espera (minutos)", color=cor_texto, fontsize=12)
+        plt.xticks(range(1, n+1), color=cor_texto)
+        plt.yticks(color=cor_texto)
+        plt.grid(axis='y', linestyle='--', alpha=0.3, color=cor_texto)
         plt.tight_layout()
-        plt.savefig('assets/tempo_espera.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.savefig('assets/tempo_espera.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close()
 
         # Segundo gráfico - Número de pessoas na fila (esperando, para qualquer número de servidores)
-        plt.figure(figsize=(12, 6))
+        plt.figure(figsize=(12, 6), facecolor=cor_fundo)
+        ax = plt.gca()
+        ax.set_facecolor(cor_fundo)
         
         # Pegar todos os tempos de eventos (chegadas e saídas do atendimento)
         eventos_tempo = np.sort(np.concatenate([self.tempos_chegada, self.fim_atendimento]))
         fila = [max(0, np.sum((self.tempos_chegada <= t) & (self.fim_atendimento > t)) - self.num_servidores) for t in eventos_tempo]
         
-        plt.step(eventos_tempo, fila, where='post', color='blue', linewidth=2, label='Pessoas na fila')
-        plt.title(f'Número de Pessoas na Fila ao Longo do Tempo ({self.num_servidores} servidores)')
-        plt.xlabel('Tempo (minutos)')
-        plt.ylabel('Número de pessoas na fila (esperando)')
-        plt.grid(True, alpha=0.3)
-        plt.legend()
+        plt.step(eventos_tempo, fila, where='post', color=cor_secundaria, linewidth=2.5, label='Pacientes aguardando')
+        plt.fill_between(eventos_tempo, fila, step="post", alpha=0.2, color=cor_secundaria)
+        plt.title(f'Tamanho da Fila ao Longo do Tempo ({self.num_servidores} postos)', color=cor_texto, fontsize=14, pad=20)
+        plt.xlabel('Tempo (minutos)', color=cor_texto, fontsize=12)
+        plt.ylabel('Número de pacientes aguardando', color=cor_texto, fontsize=12)
+        plt.grid(True, alpha=0.3, color=cor_texto)
+        plt.legend(facecolor=cor_fundo, edgecolor=cor_texto, labelcolor=cor_texto)
         plt.ylim(0, max(fila) + 1)
         plt.xlim(0, max(eventos_tempo))
+        plt.xticks(color=cor_texto)
+        plt.yticks(color=cor_texto)
         plt.tight_layout()
-        plt.savefig('assets/tamanho_fila.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
-        plt.close()
-
-        # Terceiro gráfico - Ocupação dos servidores
-        plt.figure(figsize=(12, 6))
-        colors = ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6', 
-                 '#1abc9c', '#e67e22', '#34495e', '#7f8c8d', '#c0392b']
+        plt.savefig('assets/tamanho_fila.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.close()        # Terceiro gráfico - Ocupação dos servidores
+        plt.figure(figsize=(12, 6), facecolor=cor_fundo)
+        colors = [cor_primaria, cor_secundaria, '#FF6B6B', '#FFA726', '#7E57C2', '#26A69A', '#FB8C00', '#5C6BC0', '#66BB6A', '#EC407A']
         ax = plt.gca()
+        ax.set_facecolor(cor_fundo)
 
         tempo_atual = 0
         fim_servidores = [0] * self.num_servidores
@@ -187,21 +214,15 @@ class SimuladorFilas:
 
         for servidor, tarefas in ocupacoes.items():
             for inicio, duracao, label in tarefas:
-                ax.broken_barh([(inicio, duracao)], 
-                             (servidor * 10, 9),
-                             facecolors=colors[servidor],
-                             edgecolor='white',
-                             alpha=0.7)
-                ax.text(inicio + duracao/2, servidor * 10 + 4.5, str(label),
-                       ha='center', va='center', color='white',
-                       fontsize=8)
+                ax.broken_barh([(inicio, duracao)], (servidor * 10, 9), facecolors=colors[servidor],edgecolor=cor_texto, alpha=0.7)
+                ax.text(inicio + duracao/2, servidor * 10 + 4.5, str(label), ha='center', va='center', color=cor_texto, fontsize=8, fontweight='bold')
 
-        plt.title('Ocupação dos Servidores', fontsize=14, color='white')
-        plt.xlabel('Tempo (min)', fontsize=12, color='white')
-        plt.yticks([5 + 10*i for i in range(self.num_servidores)],
-                  [f'Servidor {i+1}' for i in range(self.num_servidores)])
-        plt.grid(True, alpha=0.2)
+        plt.title('Ocupação dos Postos de Vacinação', fontsize=14, color=cor_texto, pad=20)
+        plt.xlabel('Tempo (minutos)', fontsize=12, color=cor_texto)
+        plt.yticks([5 + 10*i for i in range(self.num_servidores)], [f'Posto {i+1}' for i in range(self.num_servidores)], color=cor_texto)
+        plt.xticks(color=cor_texto)
+        plt.grid(True, alpha=0.2, color=cor_texto)
         plt.ylim(0, 10 * self.num_servidores + 5)
         plt.tight_layout()
-        plt.savefig('assets/ocupacao_servidores.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.savefig('assets/ocupacao_servidores.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')

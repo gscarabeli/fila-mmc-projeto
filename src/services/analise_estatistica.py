@@ -43,56 +43,89 @@ class AnalisadorEstatistico:
             
         return estatisticas
     
-    def gerar_visualizacoes(self):
-        # Configurar estilo dark mode para todos os gráficos
-        plt.style.use('dark_background')
+    def gerar_visualizacoes(self):        # Configurar estilo dos gráficos
+        plt.style.use('default')
+        plt.rcParams.update({
+            'figure.facecolor': 'white',
+            'axes.facecolor': 'white',
+            'axes.grid': True,
+            'grid.alpha': 0.3,
+            'axes.labelsize': 12,
+            'axes.titlesize': 14,
+            'xtick.labelsize': 10,
+            'ytick.labelsize': 10,
+            'font.family': 'sans-serif',
+        })
+
+        # Cores do tema
+        cor_primaria = '#00A1E0'    # Azul médico
+        cor_secundaria = '#4CAF50'   # Verde saúde
+        cor_destaque = '#FF6B6B'     # Vermelho suave
+        cor_fundo = '#FFFFFF'        # Branco
+        cor_texto = '#2C3E50'        # Azul escuro
         
         # Criar figura para os histogramas lado a lado
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 6))
+        fig.patch.set_facecolor(cor_fundo)
         
         # Histograma do tempo de atendimento
-        _, bins, _ = ax1.hist(self.dados['tempo_atendimento'], bins=20, color='#3498db', alpha=0.7)
-        ax1.set_title('Distribuição do Tempo de Atendimento', fontsize=14, color='white')
-        ax1.set_xlabel('Tempo (min)', fontsize=12, color='white')
-        ax1.set_ylabel('Frequência', fontsize=12, color='white')
-        ax1.grid(True, alpha=0.2)
+        ax1.set_facecolor(cor_fundo)
+        _, bins, _ = ax1.hist(self.dados['tempo_atendimento'], bins=20, color=cor_primaria, alpha=0.7)
+        ax1.set_title('Distribuição do Tempo de Atendimento', fontsize=14, color=cor_texto, pad=20)
+        ax1.set_xlabel('Tempo (minutos)', fontsize=12, color=cor_texto)
+        ax1.set_ylabel('Frequência', fontsize=12, color=cor_texto)
+        ax1.grid(True, alpha=0.3, color=cor_texto)
+        ax1.tick_params(colors=cor_texto)
         # Forçar valores inteiros no eixo y
         ax1.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
         
         # Histograma do tempo de chegada
-        ax2.hist(self.dados['tempo_de_chegada'], bins=20, color='#e74c3c', alpha=0.7)
-        ax2.set_title('Distribuição do Tempo de Chegada', fontsize=14, color='white')
-        ax2.set_xlabel('Tempo (min)', fontsize=12, color='white')
-        ax2.set_ylabel('Frequência', fontsize=12, color='white')
-        ax2.grid(True, alpha=0.2)
+        ax2.set_facecolor(cor_fundo)
+        ax2.hist(self.dados['tempo_de_chegada'], bins=20, color=cor_secundaria, alpha=0.7)
+        ax2.set_title('Distribuição do Tempo de Chegada', fontsize=14, color=cor_texto, pad=20)
+        ax2.set_xlabel('Tempo (minutos)', fontsize=12, color=cor_texto)
+        ax2.set_ylabel('Frequência', fontsize=12, color=cor_texto)
+        ax2.grid(True, alpha=0.3, color=cor_texto)
+        ax2.tick_params(colors=cor_texto)
         # Forçar valores inteiros no eixo y
         ax2.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
         plt.tight_layout(pad=3.0)
-        # Ensure the directory exists and clean up any existing file
-        plt.savefig('assets/histogramas_estatisticos.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.savefig('assets/histogramas_estatisticos.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')
         
-        # Criar figura separada para o boxplot
+        # Criar figura separada para o boxplot com estilo semelhante aos histogramas
         plt.figure(figsize=(12, 6))
-        plt.boxplot([self.dados['tempo_de_chegada'], self.dados['tempo_atendimento']], 
-                   labels=['Tempo de Chegada', 'Tempo de Atendimento'],
-                   patch_artist=True,
-                   boxprops=dict(facecolor='#2ecc71', color='white', alpha=0.7),
-                   whiskerprops=dict(color='white'),
-                   capprops=dict(color='white'),
-                   medianprops=dict(color='white'))
-        plt.title('Comparação dos Tempos', fontsize=14, color='white')
-        plt.ylabel('Tempo (min)', fontsize=12, color='white')
-        plt.grid(True, alpha=0.2)
+        fig = plt.gcf()
+        fig.patch.set_facecolor(cor_fundo)
+        ax = plt.gca()
+        ax.set_facecolor(cor_fundo)
         
+        box = plt.boxplot(
+            [self.dados['tempo_de_chegada'], self.dados['tempo_atendimento']], 
+            labels=['Tempo de Chegada', 'Tempo de Atendimento'],
+            patch_artist=True,
+            boxprops=dict(facecolor=cor_secundaria, color=cor_texto, alpha=0.7),
+            whiskerprops=dict(color=cor_texto),
+            capprops=dict(color=cor_texto),
+            medianprops=dict(color=cor_destaque, linewidth=2),
+            flierprops=dict(markerfacecolor=cor_destaque, marker='o', markersize=5, linestyle='none')
+        )
+        
+        plt.title('Comparação dos Tempos', fontsize=14, color=cor_texto, pad=20)
+        plt.ylabel('Tempo (min)', fontsize=12, color=cor_texto)
+        plt.grid(True, alpha=0.3, color=cor_texto)
+        plt.xticks(color=cor_texto)
+        plt.yticks(color=cor_texto)
+
         # Configurar eixo y com intervalos de 1 em 1
         max_valor = max(self.dados['tempo_atendimento'].max(), self.dados['tempo_de_chegada'].max())
         plt.yticks(np.arange(0, max_valor + 1, 1))
         
         plt.tight_layout(pad=3.0)
-        fig = plt.gcf()
-        plt.savefig('assets/boxplot_estatistico.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
+        plt.savefig('assets/boxplot_estatistico.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')
+
     
     def calcular_intervalos_confianca(self, confianca):
         intervalos = {}

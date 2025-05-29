@@ -42,7 +42,7 @@ Este projeto é interdisciplinar, integrando conhecimentos de:
    ```
 4. Acesse a interface local pelo navegador: http://localhost:5000
 5. Configure os parâmetros da simulação:
-   - Número de Servidores: define quantos atendentes estão disponíveis
+   - Número de Postos: define quantos postos de vacinação estão disponíveis
    - Nível de Confiança: escolha entre 90%, 95% ou 99% para os intervalos de confiança
 
 ### Estrutura de Desenvolvimento

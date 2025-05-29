@@ -10,7 +10,7 @@ class SimuladorFilas:
     def __init__(self, num_servidores, arquivo_dados):
         self.num_servidores = num_servidores
         self.dados = pd.read_csv(arquivo_dados, dtype={
-            'tempo_entre_chegadas': float,
+            'tempo_de_chegada': float,
             'tempo_atendimento': float
         })
         self.fila = deque()
@@ -27,48 +27,60 @@ class SimuladorFilas:
         
     def simular(self):
         # Calcular tempos reais de chegada
-        self.dados['tempo_chegada'] = self.dados['tempo_entre_chegadas'].cumsum()
+        self.dados['tempo_chegada'] = self.dados['tempo_de_chegada'].cumsum()
         
         # Inicializar variáveis
+        n = len(self.dados)
         self.servidores = [0] * self.num_servidores
         self.historico_espera = []
         self.historico_ocupacao = []
-        self.fila_tempo = []  # Lista para eventos da fila [(tempo, mudança)]
+        tempo_total_espera = 0
         
-        for idx, cliente in self.dados.iterrows():
-            chegada = cliente['tempo_chegada']
-            atendimento = cliente['tempo_atendimento']
-            
-            # Adicionar evento de chegada na fila
-            self.fila_tempo.append((chegada, +1))
+        # Arrays para armazenar os tempos
+        self.inicio_atendimento = np.zeros(n)
+        self.fim_atendimento = np.zeros(n)
+        self.tempos_chegada = self.dados['tempo_chegada'].values
+        self.tempos_atendimento = self.dados['tempo_atendimento'].values
+        fim_servidores = [0] * self.num_servidores
+        
+        # Lista para armazenar eventos (chegada: +1, saída: -1)
+        eventos = []
+        
+        for i in range(n):
+            chegada = self.tempos_chegada[i]
+            duracao = self.tempos_atendimento[i]
             
             # Encontrar servidor que ficará livre primeiro
-            servidor_idx = min(range(self.num_servidores), key=lambda x: self.servidores[x])
-            inicio_atendimento = max(chegada, self.servidores[servidor_idx])
-            fim_atendimento = inicio_atendimento + atendimento
+            servidor_idx = min(range(self.num_servidores), key=lambda x: fim_servidores[x])
+            inicio = max(chegada, fim_servidores[servidor_idx])
+            fim = inicio + duracao
             
-            # Adicionar evento de saída da fila
-            self.fila_tempo.append((inicio_atendimento, -1))
+            # Registrar eventos de chegada e saída
+            eventos.append((chegada, 1))           # Chegada
+            eventos.append((inicio + duracao, -1)) # Saída
             
-            # Calcular tempo de espera
-            self.historico_espera.append(inicio_atendimento - chegada)
+            # Armazenar tempos
+            self.inicio_atendimento[i] = inicio
+            self.fim_atendimento[i] = fim
+            fim_servidores[servidor_idx] = fim
             
-            # Atualizar tempo de liberação do servidor
-            self.servidores[servidor_idx] = fim_atendimento
-            
-            # Registrar ocupação
-            self.historico_ocupacao.append(sum([1 for s in self.servidores if s > chegada]))
-
-        # Ordenar eventos da fila
-        self.fila_tempo.sort()
-        # Calcular tamanho da fila acumulado
-        tempos, eventos = zip(*self.fila_tempo)
-        self.historico_tempos = tempos
-        self.historico_fila = []
-        qtd = 0
-        for e in eventos:
-            qtd += e
-            self.historico_fila.append(qtd)
+            # Calcular e acumular tempo de espera
+            tempo_espera = inicio - chegada
+            tempo_total_espera += tempo_espera
+            self.historico_espera.append(tempo_total_espera)
+        
+        # Ordenar eventos por tempo
+        eventos.sort()
+        
+        # Criar timeline e calcular tamanho da fila
+        self.timeline = []
+        self.fila = []
+        pessoas_na_fila = 0
+        
+        for tempo, mudanca in eventos:
+            self.timeline.append(tempo)
+            pessoas_na_fila += mudanca
+            self.fila.append(max(0, pessoas_na_fila - self.num_servidores))
 
     def _calcular_p0(self, lambda_taxa, mu_taxa):
         rho = lambda_taxa / (self.num_servidores * mu_taxa)
@@ -89,7 +101,7 @@ class SimuladorFilas:
         return (rho * p_espera) / (1 - rho)
 
     def calcular_metricas(self):
-        lambda_taxa = 1 / self.dados['tempo_entre_chegadas'].mean()
+        lambda_taxa = 1 / self.dados['tempo_de_chegada'].mean()
         mu_taxa = 1 / self.dados['tempo_atendimento'].mean()
         rho = lambda_taxa / (self.num_servidores * mu_taxa)
 
@@ -111,37 +123,40 @@ class SimuladorFilas:
         }
     
     def gerar_graficos(self):
-        if not self.historico_fila:
+        if not hasattr(self, 'timeline'):
             self.simular()
 
         plt.style.use('dark_background')
         n = len(self.dados)
 
-        # Primeiro gráfico - Tempo de espera
+        # Primeiro gráfico - Tempo de espera por cliente
+        tempos_espera_ordenados = sorted(self.historico_espera)
         plt.figure(figsize=(12, 6))
-        plt.bar(range(1, n+1), self.historico_espera, color='skyblue')
-        plt.title('Tempo de Espera por Cliente', fontsize=14, color='white')
-        plt.xlabel('Cliente', fontsize=12, color='white')
-        plt.ylabel('Tempo de Espera (minutos)', fontsize=12, color='white')
-        plt.grid(True, alpha=0.2)
+        plt.bar(range(1, n+1), tempos_espera_ordenados, color='orange', edgecolor='black')
+        plt.title("Tempo de Espera por Cliente")
+        plt.xlabel("Cliente")
+        plt.ylabel("Tempo de Espera (minutos)")
         plt.xticks(range(1, n+1))
-        plt.ylim(bottom=0)
+        plt.grid(axis='y', linestyle='--', alpha=0.6)
         plt.tight_layout()
         plt.savefig('assets/tempo_espera.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
         plt.close()
 
-        # Segundo gráfico - Número de pessoas na fila
+        # Segundo gráfico - Número de pessoas na fila (esperando, para qualquer número de servidores)
         plt.figure(figsize=(12, 6))
-        plt.step(self.historico_tempos, self.historico_fila, where='post', 
-                color='orange', linewidth=2)
-        plt.title(f'Número de Pessoas na Fila ao Longo do Tempo ({self.num_servidores} servidores)', 
-                 fontsize=14, color='white')
-        plt.xlabel('Tempo (minutos)', fontsize=12, color='white')
-        plt.ylabel('Número de pessoas na fila', fontsize=12, color='white')
-        plt.grid(True, alpha=0.2)
-        plt.ylim(bottom=0)
-        max_pessoas = max(self.historico_fila)
-        plt.ylim(0, max_pessoas + 1)
+        
+        # Pegar todos os tempos de eventos (chegadas e saídas do atendimento)
+        eventos_tempo = np.sort(np.concatenate([self.tempos_chegada, self.fim_atendimento]))
+        fila = [max(0, np.sum((self.tempos_chegada <= t) & (self.fim_atendimento > t)) - self.num_servidores) for t in eventos_tempo]
+        
+        plt.step(eventos_tempo, fila, where='post', color='blue', linewidth=2, label='Pessoas na fila')
+        plt.title(f'Número de Pessoas na Fila ao Longo do Tempo ({self.num_servidores} servidores)')
+        plt.xlabel('Tempo (minutos)')
+        plt.ylabel('Número de pessoas na fila (esperando)')
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.ylim(0, max(fila) + 1)
+        plt.xlim(0, max(eventos_tempo))
         plt.tight_layout()
         plt.savefig('assets/tamanho_fila.png', dpi=300, facecolor='#1a1a1a', bbox_inches='tight')
         plt.close()
@@ -157,8 +172,8 @@ class SimuladorFilas:
         ocupacoes = {i: [] for i in range(self.num_servidores)}
 
         for i, cliente in enumerate(self.dados.itertuples()):
-            tempo_atual += cliente.tempo_entre_chegadas
-            duracao = cliente.tempo_atendimento
+            tempo_atual += float(cliente.tempo_de_chegada)
+            duracao = float(cliente.tempo_atendimento)
 
             if self.historico_espera[i] == 0:
                 servidor = min(range(self.num_servidores), key=lambda x: fim_servidores[x])

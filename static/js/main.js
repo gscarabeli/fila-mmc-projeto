@@ -88,7 +88,7 @@ function formatarEstatisticas(estatisticas) {
     
     // Ordem específica dos títulos
     const titulosOrdenados = [
-        'Tempo entre Chegadas:',
+        'Tempo de Chegada:',
         'Tempo de Atendimento:'
     ];
     
@@ -113,7 +113,7 @@ function formatarEstatisticas(estatisticas) {
 function formatarIntervalos(intervalos) {
     // Ordem específica dos intervalos
     const titulosOrdenados = [
-        'Tempo entre Chegadas:',
+        'Tempo de Chegada:',
         'Tempo de Atendimento:'
     ];
     

@@ -59,7 +59,7 @@ def generate_results_csv(metricas, estatisticas, intervalos_confianca):
     df.to_csv(filepath, index=False, encoding='utf-8-sig')
     return filename
 
-def main(num_servidores=3, nivel_confianca=0.95):
+def main(num_servidores=2, nivel_confianca=0.95):
     assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
     ARQUIVO_DADOS = os.path.join(assets_dir, 'dados_atendimento.csv')
     
@@ -86,7 +86,7 @@ def index():
 
 @app.route('/simular', methods=['POST'])
 def simular():
-    num_servidores = request.json.get('numServidores', 3)
+    num_servidores = request.json.get('numServidores', 2)
     nivel_confianca = request.json.get('nivelConfianca', 0.95)
     metricas, estatisticas, intervalos_confianca, csv_filename = main(num_servidores, nivel_confianca)
     return jsonify({

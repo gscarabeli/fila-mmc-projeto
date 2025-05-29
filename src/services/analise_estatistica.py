@@ -8,7 +8,7 @@ from scipy import stats
 class AnalisadorEstatistico:
     def __init__(self, arquivo_dados):
         self.dados = pd.read_csv(arquivo_dados, dtype={
-            'tempo_entre_chegadas': float,
+            'tempo_de_chegada': float,
             'tempo_atendimento': float
         })
         
@@ -16,7 +16,7 @@ class AnalisadorEstatistico:
         estatisticas = {}
         
         nomes = {
-            'tempo_entre_chegadas': 'Tempo entre Chegadas:',
+            'tempo_de_chegada': 'Tempo de Chegada:',
             'tempo_atendimento': 'Tempo de Atendimento:'
         }
         
@@ -59,9 +59,9 @@ class AnalisadorEstatistico:
         # Forçar valores inteiros no eixo y
         ax1.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
         
-        # Histograma do tempo entre chegadas
-        ax2.hist(self.dados['tempo_entre_chegadas'], bins=20, color='#e74c3c', alpha=0.7)
-        ax2.set_title('Distribuição do Tempo entre Chegadas', fontsize=14, color='white')
+        # Histograma do tempo de chegada
+        ax2.hist(self.dados['tempo_de_chegada'], bins=20, color='#e74c3c', alpha=0.7)
+        ax2.set_title('Distribuição do Tempo de Chegada', fontsize=14, color='white')
         ax2.set_xlabel('Tempo (min)', fontsize=12, color='white')
         ax2.set_ylabel('Frequência', fontsize=12, color='white')
         ax2.grid(True, alpha=0.2)
@@ -74,8 +74,8 @@ class AnalisadorEstatistico:
         
         # Criar figura separada para o boxplot
         plt.figure(figsize=(12, 6))
-        plt.boxplot([self.dados['tempo_entre_chegadas'], self.dados['tempo_atendimento']], 
-                   labels=['Tempo entre Chegadas', 'Tempo de Atendimento'],
+        plt.boxplot([self.dados['tempo_de_chegada'], self.dados['tempo_atendimento']], 
+                   labels=['Tempo de Chegada', 'Tempo de Atendimento'],
                    patch_artist=True,
                    boxprops=dict(facecolor='#2ecc71', color='white', alpha=0.7),
                    whiskerprops=dict(color='white'),
@@ -86,7 +86,7 @@ class AnalisadorEstatistico:
         plt.grid(True, alpha=0.2)
         
         # Configurar eixo y com intervalos de 1 em 1
-        max_valor = max(self.dados['tempo_atendimento'].max(), self.dados['tempo_entre_chegadas'].max())
+        max_valor = max(self.dados['tempo_atendimento'].max(), self.dados['tempo_de_chegada'].max())
         plt.yticks(np.arange(0, max_valor + 1, 1))
         
         plt.tight_layout(pad=3.0)
@@ -98,7 +98,7 @@ class AnalisadorEstatistico:
         intervalos = {}
         z_critico = stats.norm.ppf((1 + confianca) / 2)
         
-        for coluna, nome in {'tempo_entre_chegadas': 'Tempo entre Chegadas:', 
+        for coluna, nome in {'tempo_de_chegada': 'Tempo de Chegada:', 
                             'tempo_atendimento': 'Tempo de Atendimento:'}.items():
             dados = self.dados[coluna]
             media = dados.mean()

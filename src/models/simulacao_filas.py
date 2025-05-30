@@ -119,7 +119,7 @@ class SimuladorFilas:
             'Wq': wq,
             'L': l,
             'W': w,
-            'Utilizacao': rho
+            'Utilização': rho
         }
     
     def gerar_graficos(self):

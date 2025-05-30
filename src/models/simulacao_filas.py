@@ -163,7 +163,7 @@ class SimuladorFilas:
         plt.yticks(color=cor_texto)
         plt.grid(axis='y', linestyle='--', alpha=0.3, color=cor_texto)
         plt.tight_layout()
-        plt.savefig('assets/tempo_espera.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.savefig('assets/graphs/tempo_espera.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close()
 
         # Segundo gráfico - Número de pessoas na fila (esperando, para qualquer número de servidores)
@@ -187,7 +187,7 @@ class SimuladorFilas:
         plt.xticks(color=cor_texto)
         plt.yticks(color=cor_texto)
         plt.tight_layout()
-        plt.savefig('assets/tamanho_fila.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.savefig('assets/graphs/tamanho_fila.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close()        # Terceiro gráfico - Ocupação dos servidores
         plt.figure(figsize=(12, 6), facecolor=cor_fundo)
         colors = [cor_primaria, cor_secundaria, '#FF6B6B', '#FFA726', '#7E57C2', '#26A69A', '#FB8C00', '#5C6BC0', '#66BB6A', '#EC407A']
@@ -224,5 +224,5 @@ class SimuladorFilas:
         plt.grid(True, alpha=0.2, color=cor_texto)
         plt.ylim(0, 10 * self.num_servidores + 5)
         plt.tight_layout()
-        plt.savefig('assets/ocupacao_servidores.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.savefig('assets/graphs/ocupacao_servidores.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')

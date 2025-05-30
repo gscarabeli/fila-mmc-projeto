@@ -91,7 +91,7 @@ class AnalisadorEstatistico:
         ax2.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
 
         plt.tight_layout(pad=3.0)
-        plt.savefig('assets/histogramas_estatisticos.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.savefig('assets/graphs/histogramas_estatisticos.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')
         
         # Criar figura separada para o boxplot com estilo semelhante aos histogramas
@@ -123,7 +123,7 @@ class AnalisadorEstatistico:
         plt.yticks(np.arange(0, max_valor + 1, 1))
         
         plt.tight_layout(pad=3.0)
-        plt.savefig('assets/boxplot_estatistico.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
+        plt.savefig('assets/graphs/boxplot_estatistico.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')
         plt.close('all')
 
     

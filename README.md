@@ -51,7 +51,8 @@ O projeto está organizado de forma modular para facilitar a manutenção e exte
 - `src/models/`: Contém a lógica central da simulação de filas
 - `src/services/`: Implementa os serviços de análise estatística
 - `static/` e `templates/`: Interface web da aplicação
-- `assets/`: Armazena recursos como dados de entrada e gráficos gerados
+- `assets/`: Armazena recursos como os dados de entrada e os resultados
+- `assets/graphs`: Armazena os gráficos gerados
 
 
 ## 🖼️ Print do Kanban no Trello
@@ -93,8 +94,9 @@ Abaixo, a visualização do quadro com as tarefas divididas por status:
 │       └── 📜 main.js                # Lógica do frontend
 ├── 📂 assets/                        # Recursos
 │   ├── 📜 dados_atendimento.csv      # Dados de simulação
-│   ├── 📊 graficos_*.png             # Gráficos gerados
 │   └── 📂 prints/                    # Imagens do Kanban do projeto
+│   └── 📂 graphs/                    # Armazena os gráficos gerados
+│       └── 📊 graficos_*.png         # Gráficos gerados
 ├── 📜 requirements.txt               # Dependências do projeto
 ├── 📜 README.md                      # Esta documentação
 └── 📜 LICENSE                        # Licença MIT

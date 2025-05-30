@@ -27,16 +27,16 @@ class AnalisadorEstatistico:
             'variancia': 'Variância',
             'desvio_padrao': 'Desvio Padrão'
         }
-        
+
         for coluna, nome in nomes.items():
             dados = self.dados[coluna]
             moda = dados.mode()
-            valor_moda = "Não possui moda" if len(moda) > 1 else moda.iloc[0]
-            
+            valor_moda = ['Não possui moda'] if moda.empty else [' | '.join(str(x).replace('.', ',') for x in moda.tolist())]
+
             estatisticas[nome] = {
                 metricas['media']: dados.mean(),
                 metricas['mediana']: dados.median(),
-                metricas['moda']: valor_moda,
+                metricas['moda']: valor_moda[0],
                 metricas['variancia']: dados.var(),
                 metricas['desvio_padrao']: dados.std()
             }
@@ -68,10 +68,10 @@ class AnalisadorEstatistico:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 6))
         fig.patch.set_facecolor(cor_fundo)
         
-        # Histograma do tempo de atendimento
+        # Histograma do tempo de chegada
         ax1.set_facecolor(cor_fundo)
-        _, bins, _ = ax1.hist(self.dados['tempo_atendimento'], bins=20, color=cor_primaria, alpha=0.7)
-        ax1.set_title('Distribuição do Tempo de Atendimento', fontsize=14, color=cor_texto, pad=20)
+        ax1.hist(self.dados['tempo_de_chegada'], bins=20, color=cor_secundaria, alpha=0.7)
+        ax1.set_title('Distribuição do Tempo de Chegada', fontsize=14, color=cor_texto, pad=20)
         ax1.set_xlabel('Tempo (minutos)', fontsize=12, color=cor_texto)
         ax1.set_ylabel('Frequência', fontsize=12, color=cor_texto)
         ax1.grid(True, alpha=0.3, color=cor_texto)
@@ -79,16 +79,16 @@ class AnalisadorEstatistico:
         # Forçar valores inteiros no eixo y
         ax1.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
         
-        # Histograma do tempo de chegada
+        # Histograma do tempo de atendimento
         ax2.set_facecolor(cor_fundo)
-        ax2.hist(self.dados['tempo_de_chegada'], bins=20, color=cor_secundaria, alpha=0.7)
-        ax2.set_title('Distribuição do Tempo de Chegada', fontsize=14, color=cor_texto, pad=20)
+        _, bins, _ = ax2.hist(self.dados['tempo_atendimento'], bins=20, color=cor_primaria, alpha=0.7)
+        ax2.set_title('Distribuição do Tempo de Atendimento', fontsize=14, color=cor_texto, pad=20)
         ax2.set_xlabel('Tempo (minutos)', fontsize=12, color=cor_texto)
         ax2.set_ylabel('Frequência', fontsize=12, color=cor_texto)
         ax2.grid(True, alpha=0.3, color=cor_texto)
         ax2.tick_params(colors=cor_texto)
         # Forçar valores inteiros no eixo y
-        ax2.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        ax2.yaxis.set_major_locator(plt.MaxNLocator(integer=True))        
 
         plt.tight_layout(pad=3.0)
         plt.savefig('assets/graphs/histogramas_estatisticos.png', dpi=300, facecolor=cor_fundo, bbox_inches='tight')

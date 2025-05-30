@@ -53,8 +53,7 @@ def generate_results_csv(metricas, estatisticas, intervalos_confianca):
     # Combina todos os dados e gera o CSV
     all_data = {**metricas_dict, **estatisticas_dict, **intervalos_dict}
     df = pd.DataFrame(all_data)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"resultados_{timestamp}.csv"
+    filename = "resultados.csv"
     filepath = os.path.join(assets_dir, filename)
     df.to_csv(filepath, index=False, encoding='utf-8-sig')
     return filename
